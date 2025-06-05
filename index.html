@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Kindle Clippings Parser</title>
+	<script src="https://kit.fontawesome.com/9f7e3a368e.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+	<div id="topRightMenu">
+		<button id="darkModeToggleBtn" class="icon-btn" title="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+		<a href="https://github.com/" target="_blank" class="icon-btn" title="GitHub"><i class="fab fa-github"></i></a>
+	</div>
+	<h1>Kindle Clippings Viewer</h1>
+	<input type="file" id="fileInput" accept=".txt">
+	<label for="sortOrder">Sort by:</label>
+	<select id="sortOrder">
+		<option value="oldest">Oldest to Newest</option>
+		<option value="newest">Newest to Oldest</option>
+	</select>
+	<input type="text" id="searchInput" placeholder="Search highlights...">
+	<div id="output"></div>
+
+	<script>
+		let parsedClippings = [];
+
+		document.getElementById('fileInput').addEventListener('change', function(e) {
+			const file = e.target.files[0];
+			if (!file) return;
+			const reader = new FileReader();
+			reader.onload = function(e) {
+				const content = e.target.result;
+				const clippings = content.split('==========').map(c => c.trim()).filter(Boolean);
+				parsedClippings = clippings.map(clip => {
+					const lines = clip.split('\n').filter(Boolean);
+					if (lines.length < 3) return null;
+					const title = lines[0];
+					const meta = lines[1];
+					const text = lines.slice(2).join('\n');
+					const dateMatch = meta.match(/Added on (.+)/);
+					const date = dateMatch ? parseClippingDate(dateMatch[1].trim()) : new Date();
+					return { title, meta, text, date };
+				}).filter(Boolean);
+				displayClippings();
+			};
+			reader.readAsText(file);
+		});
+
+		document.getElementById('sortOrder').addEventListener('change', displayClippings);
+		document.getElementById('searchInput').addEventListener('input', displayClippings);
+
+		document.getElementById('darkModeToggleBtn').addEventListener('click', function() {
+			document.body.classList.toggle('dark-mode');
+			const isDark = document.body.classList.contains('dark-mode');
+			localStorage.setItem('darkMode', isDark);
+			updateDarkIcon();
+		});
+
+		function updateDarkIcon() {
+			const btn = document.getElementById('darkModeToggleBtn');
+			btn.innerHTML = document.body.classList.contains('dark-mode') ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+		}
+
+		function applySystemDarkMode() {
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			const saved = localStorage.getItem('darkMode');
+			const enabled = saved !== null ? saved === 'true' : prefersDark;
+			document.body.classList.toggle('dark-mode', enabled);
+			updateDarkIcon();
+		}
+
+		applySystemDarkMode();
+
+		function parseClippingDate(dateStr) {
+			const parts = dateStr.match(/\w+, (\d{1,2}) (\w+) (\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+			if (!parts) return new Date();
+			const [ , day, monthName, year, hour, minute, second ] = parts;
+			const months = {
+				January: 0, February: 1, March: 2, April: 3,
+				May: 4, June: 5, July: 6, August: 7,
+				September: 8, October: 9, November: 10, December: 11
+			};
+			return new Date(
+				parseInt(year),
+				months[monthName],
+				parseInt(day),
+				parseInt(hour),
+				parseInt(minute),
+				parseInt(second)
+			);
+		}
+
+		function displayClippings() {
+			const sortOrder = document.getElementById('sortOrder').value;
+			const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+			const output = document.getElementById('output');
+			output.innerHTML = '';
+			let filtered = parsedClippings.filter(clip =>
+				clip.text.toLowerCase().includes(searchQuery) ||
+				clip.title.toLowerCase().includes(searchQuery)
+			);
+			filtered.sort((a, b) => sortOrder === 'newest' ? b.date - a.date : a.date - b.date);
+
+			filtered.forEach(clip => {
+				const div = document.createElement('div');
+				div.className = 'highlight';
+				div.innerHTML = `<div class="meta"><strong>${clip.title}</strong><br>${clip.meta}</div><div class="text">${clip.text}</div>`;
+				output.appendChild(div);
+			});
+		}
+	</script>
+</body>
+</html>
