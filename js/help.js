@@ -1,16 +1,31 @@
 export function setupHelp() {
-	let helpBtn = document.getElementById("helpBtn");
-	let helpBox = document.getElementById("helpbox");
-	helpBtn.addEventListener("click", () => {
-		if (helpBox.style.display === "none") {
-			helpBox.style.display = "inline";
-		} else if (helpBox.style.display === "inline") {
-			helpBox.style.display = "none";
-		} else {
-			console.error("AAAAAAAAAAAAAAAAAAAAAAAAA\nDetails: in funciton setupHelp, helpBox.style.display is neither none nor inline.");
-		}
-	})
-};
+    const helpBtn = document.getElementById("helpBtn");
+    const helpBox = document.getElementById("helpbox");
+
+    helpBtn.addEventListener("click", () => {
+        const isShowing = helpBox.classList.contains("showing");
+        const isHiding = helpBox.classList.contains("hiding");
+
+        if (!isShowing && !isHiding) {
+            helpBox.classList.add("showing");
+        } else if (isShowing) {
+            helpBox.classList.remove("showing");
+            helpBox.classList.add("hiding");
+
+            const onTransitionEnd = (e) => {
+                if (e.propertyName === "opacity") {
+                    helpBox.classList.remove("hiding");
+                    helpBox.removeEventListener("transitionend", onTransitionEnd);
+                }
+            };
+            void helpBox.offsetWidth;
+
+            helpBox.addEventListener("transitionend", onTransitionEnd);
+        }
+    });
+}
+
+
 export function fetchHelp() {
 	let helpBox = document.getElementById("helpbox");
 	fetch('help.md')
