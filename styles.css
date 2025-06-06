@@ -27,9 +27,8 @@ input[type="text"] {
 	padding: 0.5rem;
 	width: 100%;
 	max-width: 400px;
-
-	background: #fff;   /* Light mode background */
-	color: #111;        /* Light mode text color */
+	background: #fff;
+	color: #111;
 	border: 1px solid #ccc;
 	border-radius: 4px;
 	transition: background 0.3s, color 0.3s, border-color 0.3s;
@@ -38,8 +37,8 @@ input[type="text"] {
 body.dark-mode input[type="file"],
 body.dark-mode select,
 body.dark-mode input[type="text"] {
-	background: #2a2a2a;   /* Dark mode background */
-	color: #e0e0e0;        /* Dark mode text color */
+	background: #2a2a2a;
+	color: #e0e0e0;
 	border: 1px solid #555;
 }
 
@@ -108,3 +107,14 @@ body.dark-mode #helpbox {
 	background: #1f1e1e;
     box-shadow: 0 0 10px rgba(254, 254, 254, 0.3);
 }
+footer {
+	position: fixed;
+	bottom: 0rem;
+	right: 0rem;
+	font-size: 0.9em;
+	color: gray;
+	background: transparent;
+	pointer-events: none; /* Optional: makes it non-interactive */
+}
+
+

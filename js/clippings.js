@@ -17,11 +17,23 @@ export function handleFileUpload(e) {
 			const text = lines.slice(2).join('\n');
 			const dateMatch = meta.match(/Added on (.+)/);
 			const date = dateMatch ? parseClippingDate(dateMatch[1].trim()) : new Date();
-			return { title, meta, text, date };
+			return { title, meta, text, date: date.toISOString() }; // Store date as string
 		}).filter(Boolean);
+		localStorage.setItem('clippings', JSON.stringify(parsedClippings));
 		displayClippings();
 	};
 	reader.readAsText(file);
+}
+
+export function loadClippingsFromStorage() {
+	const stored = localStorage.getItem('clippings');
+	if (stored) {
+		parsedClippings = JSON.parse(stored).map(c => ({
+			...c,
+			date: new Date(c.date)
+		}));
+		displayClippings();
+	}
 }
 
 export function displayClippings() {
