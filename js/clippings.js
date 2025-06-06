@@ -47,6 +47,8 @@ export function displayClippings() {
 		clip.title.toLowerCase().includes(searchQuery)
 	);
 
+	document.getElementById('clippingsCount').textContent = `Total clippings: ${filtered.length}`;
+
 	filtered.sort((a, b) => sortOrder === 'newest' ? b.date - a.date : a.date - b.date);
 
 	filtered.forEach(clip => {
