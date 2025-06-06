@@ -55,6 +55,23 @@ export function displayClippings() {
 		const div = document.createElement('div');
 		div.className = 'highlight';
 		div.innerHTML = `<div class="meta"><strong>${clip.title}</strong><br>${clip.meta}</div><div class="text">${clip.text}</div>`;
+
+		const copyBtn = document.createElement('button');
+		copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+		copyBtn.className = 'copy-btn';
+		copyBtn.style.margin = '5px 0';
+		copyBtn.title = 'Copy highlight';
+		copyBtn.onclick = () => {
+			navigator.clipboard.writeText(clip.text);
+			copyBtn.innerHTML = '<i class="fas fa-check"></i>';
+			copyBtn.classList.add('clicked');
+			setTimeout(() => {
+				copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
+				copyBtn.classList.remove('clicked');
+			}, 1000);
+		};
+		div.appendChild(copyBtn);
+
 		output.appendChild(div);
 	});
 }
